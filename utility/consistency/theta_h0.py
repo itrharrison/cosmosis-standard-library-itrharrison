@@ -41,7 +41,7 @@ def H0_to_theta(hubble, omega_nu, omnuh2, omega_m, ommh2, omega_c, omch2, omega_
     cosmo = LambdaCDM(hubble, omega_m, omega_lambda, m_nu=m_nu/3, Ob0=omega_b, Tcmb0=2.7255, Neff=3.046)
 
     ombh2 = cosmo.Ob0 * cosmo.h**2
-    omdmh2 = cosmo.Om0 * cosmo.h**2
+    omdmh2 = cosmo.Odm0 * cosmo.h**2 + cosmo.Onu0 * cosmo.h**2.
 
     zstar = 1048*(1+0.00124*ombh2**(-0.738))*(1+ (0.0783*ombh2**(-0.238)/(1+39.5*ombh2**0.763)) * (omdmh2+ombh2)**(0.560/(1+21.1*ombh2**1.81)))
     astar = 1 / (1+zstar)
@@ -107,4 +107,16 @@ def theta_to_H0_interface(params):
     omlamh2 = params.get('omlamh2', np.nan)
     omegak = params.get('omega_k', np.nan)
 
-    return theta_to_H0(theta, omega_nu, omnuh2, omega_m, ommh2, omega_c, omch2, omega_b, ombh2, omega_lambda, omlamh2, omegak)
+    get_H0 = lambda theta: theta_to_H0(theta, omega_nu, omnuh2, omega_m, ommh2, omega_c, omch2, omega_b, ombh2, omega_lambda, omlamh2, omegak)
+
+    theta_arr = np.linspace(0.0102, 0.0107, 128)
+    H0_arr = np.zeros_like(theta_arr)
+
+    for i in np.arange(128):
+        H0_arr[i] = get_H0(theta_arr[i])
+
+    np.savetxt('debug_output/consistency_bf_theta_H0.txt', np.column_stack([theta_arr, H0_arr]))
+    with open('debug_output/consistency_bf_params.txt', 'w') as f:
+        print(params, file=f)
+
+    return get_H0(theta) 

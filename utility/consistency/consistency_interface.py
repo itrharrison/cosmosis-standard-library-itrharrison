@@ -84,4 +84,6 @@ def execute(block, config):
 
         block[cosmo, "sigma_8"] = sigma_8
 
+    block.save_to_file('debug_output/consistency_bf_block.txt', clobber=True)
+
     return 0
