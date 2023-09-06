@@ -349,12 +349,14 @@ def extract_camb_params(block, config, more_config):
         warnings.warn("Parameter omega_nu and omnuh2 are being ignored. Set mnu and num_massive_neutrinos instead.")
 
     # Set h if provided, otherwise look for theta_mc
-    if block.has_value(cosmo, "hubble"):
+    if block.has_value(cosmo, "cosmomc_theta"):
+        cosmology_params["cosmomc_theta"] = block[cosmo, "cosmomc_theta"]
+    elif block.has_value(cosmo, "hubble"):
         cosmology_params["H0"] = block[cosmo, "hubble"]
     elif block.has_value(cosmo, "h0"):
         cosmology_params["H0"] = block[cosmo, "h0"]*100
-    else:
-        cosmology_params["cosmomc_theta"] = block[cosmo, "cosmomc_theta"]/100
+    # else:
+    #     cosmology_params["cosmomc_theta"] = block[cosmo, "cosmomc_theta"]/100
 
     cpars = camb.CAMBparams(
         InitPower = init_power,
@@ -366,31 +368,31 @@ def extract_camb_params(block, config, more_config):
         **config,
     )
 
-    theta_arr = np.linspace(0.0102, 0.0107, 128)
-    H0_arr = np.zeros_like(theta_arr)
+    # theta_arr = np.linspace(0.0102, 0.0107, 128)
+    # H0_arr = np.zeros_like(theta_arr)
 
-    for i in np.arange(128):
-        cosmology_params_noH0 = dict(cosmology_params)
-        del cosmology_params_noH0["H0"]
-        cosmology_params_noH0["cosmomc_theta"] = theta_arr[i]
-        cpars.set_cosmology(H0=None,
-                        ombh2 = block[cosmo, 'ombh2'],
+    # for i in np.arange(128):
+    #     cosmology_params_noH0 = dict(cosmology_params)
+    #     if "H0" in cosmology_params_noH0.keys():
+    #         del cosmology_params_noH0["H0"]
+    #     cosmology_params_noH0["cosmomc_theta"] = theta_arr[i]
+    #     cpars.set_cosmology(H0=None,ombh2 = block[cosmo, 'ombh2'],omch2 = block[cosmo, 'omch2'],omk = block[cosmo, 'omega_k'],**more_config["cosmology_params"],**cosmology_params_noH0)
+    #     H0_arr[i] = cpars.h*100
+    #     import pdb; pdb.set_trace()
+
+    # np.savetxt('./debug_output/camb_theta_H0.txt', np.column_stack([theta_arr, H0_arr]))
+    
+    # Setting up neutrinos by hand is hard. We let CAMB deal with it instead.
+    cpars.set_cosmology(ombh2 = block[cosmo, 'ombh2'],
                         omch2 = block[cosmo, 'omch2'],
                         omk = block[cosmo, 'omega_k'],
                         **more_config["cosmology_params"],
-                        **cosmology_params_noH0)
-        H0_arr[i] = cpars.h*100
+                        **cosmology_params)
 
-    np.savetxt('./debug_output/camb_theta_H0.txt', np.column_stack([theta_arr, H0_arr]))
-    with open('debug_output/camb_params.txt', 'w') as f:
-        print(cpars, file=f)
+    # with open('debug_output/camb_params.txt', 'w') as f:
+    #     print(cpars, file=f)
 
-    # Setting up neutrinos by hand is hard. We let CAMB deal with it instead.
-    cpars.set_cosmology(ombh2 = block[cosmo, 'ombh2'],
-                    omch2 = block[cosmo, 'omch2'],
-                    omk = block[cosmo, 'omega_k'],
-                    **more_config["cosmology_params"],
-                    **cosmology_params)
+    import pdb; pdb.set_trace()
 
     # Fix for CAMB version < 1.0.10
     if np.isclose(cpars.omnuh2, 0) and "nnu" in cosmology_params and not np.isclose(cosmology_params["nnu"], cpars.num_nu_massless): 

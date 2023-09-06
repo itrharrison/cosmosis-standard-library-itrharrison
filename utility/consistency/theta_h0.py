@@ -115,8 +115,8 @@ def theta_to_H0_interface(params):
     for i in np.arange(128):
         H0_arr[i] = get_H0(theta_arr[i])
 
-    np.savetxt('debug_output/consistency_bf_theta_H0.txt', np.column_stack([theta_arr, H0_arr]))
-    with open('debug_output/consistency_bf_params.txt', 'w') as f:
-        print(params, file=f)
+    # np.savetxt('debug_output/consistency_bf_theta_H0.txt', np.column_stack([theta_arr, H0_arr]))
+    # with open('debug_output/consistency_bf_params.txt', 'w') as f:
+    #     print(params, file=f)
 
     return get_H0(theta) 

@@ -28,10 +28,10 @@ class: <CAMBparams>
  omch2 = 0.12
  omk = 0.0
  omnuh2 = 0.000644866570625114
- H0 = 77.41550290572151
+ H0 = 67.06627300012569
  TCMB = 2.7255
  YHe = 0.245341
- num_nu_massless = 0.0019999999999997797
+ num_nu_massless = 0.0
  num_nu_massive = 3
  nu_mass_eigenstates = 1
  share_delta_neff = False
